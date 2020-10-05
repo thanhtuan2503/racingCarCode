@@ -5,12 +5,12 @@
 #include "VarSpeedServo.h"
 
 #define numOfSensor 8
-#define myKp  6
-#define myKi  0
-#define myKd  0
+#define myKp  8
+#define myKi  1
+#define myKd  2
 #define mySetp  3.5
-#define myOutMax  -60
-#define myOutMin  60
+#define myOutMax  60
+#define myOutMin  -60
 #define myTime 0.01
 
 #define INA 6
@@ -31,7 +31,7 @@ VarSpeedServo myServo;
 //Servo myDCMotor;
 double servoSpeed = 0;
 double Out = 0;
-short motorSpeed = 45;
+short motorSpeed = 55;
 float val[numOfSensor][numOfSensor];
 int halfLine = 0;
 int fullLine = 0;
@@ -57,7 +57,7 @@ void readMinMax(){
   int preSensor[8];
   for (int i = 30; i <= 150; i = i + 10){
      myServo.write(i, 150, true); 
-     delay(50);      
+//     delay(50);      
      for(int j = 0; j <=7 ; j++){
        preSensor[j] = analogRead(pin[7 - j]);
        if (preSensor[j] > maxArr[j]) maxArr[j] = preSensor[j];
@@ -67,7 +67,7 @@ void readMinMax(){
   }
   for (int i = 150; i > 30; i = i - 10){
     myServo.write(i, 150, true);
-    delay(50);
+//    delay(50);
     for(int j = 0; j <=7 ; j++){
      preSensor[j] = analogRead(pin[7 - j]);
      if (preSensor[j] > maxArr[j]) maxArr[j] = preSensor[j];
@@ -115,7 +115,7 @@ void setup(){
   print(maxArr);
   print(minArr);
   Serial.println("Start loop");
-  myServo.write(90, 150, true);
+  myServo.write(90, 255, true);
   delay(200);
 }
 
@@ -241,24 +241,24 @@ void loop()
  
   // TODO: Bat dau chay xe myDCMotor
     //myDCMotor.write(110);
-    //myServo.write(60);    
+//    myServo.write(90, 255, true);    
    unsigned long elapsedTime = millis() - preTime;
-   if (elapsedTime > 10){
+   if (elapsedTime > 3){
       for(int i = 0; i < N; i++){
         ledVal[i] = analogRead(pin[N - 1 -i]);
       }
       normalize(ledVal, maxArr, minArr, MAXVALUE, MINVALUE);
       update();
       preTime = preTime + elapsedTime;
-      //forward();
-      servoSpeed = map(xCoordinate - mySetp, 0, 3.5, 0, 255);
+      forward();
+      servoSpeed = map(xCoordinate - mySetp, 0, 3.5, 50, 255);
       Out = myPID.Calculate(mySetp, xCoordinate);
-      myServo.write(-Out + 90, servoSpeed );
-//      Serial.print(3.5);
-//      Serial.print(",");
-//      Serial.print(xCoordinate);
-//      Serial.print(",");
-//      Serial.println(Out);
+      myServo.write(Out + 90, servoSpeed );
+      Serial.print(3.5);
+      Serial.print(",");
+      Serial.print(xCoordinate);
+      Serial.print(",");
+      Serial.println(Out);
    }
 
 }
